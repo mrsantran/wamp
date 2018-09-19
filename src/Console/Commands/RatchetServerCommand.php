@@ -9,7 +9,6 @@ use Ratchet\Server\IpBlackList;
 use Ratchet\WebSocket\WsServer;
 use Illuminate\Console\Command;
 use React\EventLoop\LoopInterface;
-use React\ZMQ\Context as ZMQContext;
 use Ratchet\Wamp\WampServerInterface;
 use Ratchet\MessageComponentInterface;
 use React\Socket\Server as SocketServer;
@@ -111,7 +110,6 @@ class RatchetServerCommand extends Command
             ['port', 'p', InputOption::VALUE_OPTIONAL, 'Ratchet server port', config('ratchet.port', 8080)],
             ['class', null, InputOption::VALUE_OPTIONAL, 'Class that implements MessageComponentInterface.', config('ratchet.class')],
             ['driver', null, InputOption::VALUE_OPTIONAL, 'Ratchet connection driver [IoServer|WsServer|WampServer]', 'WampServer'],
-            ['zmq', 'z', null, 'Bind server to a ZeroMQ socket (always on for WampServer)'],
             ['keepAlive', null, InputOption::VALUE_OPTIONAL, 'Option to enable WebSocket server keep alive [interval in seconds]', config('ratchet.keepAlive', 0)],
         ];
     }
@@ -272,26 +270,6 @@ class RatchetServerCommand extends Command
             $socket,
             $this->getEventLoop()
         );
-    }
-
-    /**
-     * Boot a ZMQ listener and let the Ratchet server handle its events.
-     */
-    private function bootZmqConnection()
-    {
-        $this->info(sprintf('Starting ZMQ listener on: %s:%s', config('ratchet.zmq.host'), config('ratchet.zmq.port')));
-
-        $context = new ZMQContext($this->getEventLoop());
-        $socket = $context->getSocket(config('ratchet.zmq.method', \ZMQ::SOCKET_PULL));
-        $socket->bind(sprintf('tcp://%s:%d', config('ratchet.zmq.host', '127.0.0.1'), config('ratchet.zmq.port', 5555)));
-
-        $socket->on('messages', function ($messages) {
-            $this->ratchetServer->onEntry($messages);
-        });
-
-        $socket->on('message', function ($message) {
-            $this->ratchetServer->onEntry($message);
-        });
     }
 
     /**

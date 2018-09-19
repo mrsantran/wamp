@@ -21,11 +21,6 @@ return [
      ],
     'abortOnMessageThrottle' => false,
     'blackList'              => [],
-    'zmq'                    => [
-        'host'   => '127.0.0.1',
-        'port'   => 5555,
-        'method' => \ZMQ::SOCKET_PULL,
-    ],
     /**
      * Look up http://php.net/manual/en/context.ssl.php to configure SSL/TLS.
      */
