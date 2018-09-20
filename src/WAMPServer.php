@@ -73,9 +73,9 @@ class WAMPServer implements WampServerInterface {
             //this is a optional dependency
             //if we enabled push in the config file make
             //shure reaxt/zmq ist loaded
-//            if (!class_exists('\React\ZMQ\Context')) {
-//                throw new WAMPServerException("react/zmq dependency is required if push is enabled");
-//            }
+            if (!class_exists('\React\ZMQ\Context')) {
+                throw new WAMPServerException("react/zmq dependency is required if push is enabled");
+            }
 
             $this->pusher = new WAMPServerPusher;
         }
